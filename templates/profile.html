@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}{{ current_user.username }}'s Profile - SocialFeed{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <!-- Profile Header -->
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" 
+                     style="width: 80px; height: 80px;">
+                    {% if current_user.profile_picture %}
+                        <img src="{{ current_user.profile_picture }}" alt="{{ current_user.username }}" 
+                             class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
+                    {% else %}
+                        <i class="fas fa-user fa-2x text-white"></i>
+                    {% endif %}
+                </div>
+                
+                <h3>{{ current_user.username }}</h3>
+                <p class="text-muted">{{ current_user.email }}</p>
+                
+                <!-- Profile Stats -->
+                <div class="row mt-4">
+                    <div class="col-4">
+                        <h5>{{ posts|length }}</h5>
+                        <small class="text-muted">Posts</small>
+                    </div>
+                    <div class="col-4">
+                        <h5>{{ posts|sum(attribute='likes')|length if posts else 0 }}</h5>
+                        <small class="text-muted">Likes Received</small>
+                    </div>
+                    <div class="col-4">
+                        <h5>{{ posts|sum(attribute='comments')|length if posts else 0 }}</h5>
+                        <small class="text-muted">Comments Received</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- User's Posts -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4>
+                <i class="fas fa-stream me-2"></i>Your Posts
+            </h4>
+            <a href="{{ url_for('main_routes.index') }}" class="btn btn-outline-primary">
+                <i class="fas fa-plus me-2"></i>Create New Post
+            </a>
+        </div>
+        
+        {% if posts %}
+            {% for post in posts %}
+            <div class="card mb-4 post-card" data-post-id="{{ post.id }}">
+                <div class="card-body">
+                    <!-- Post Header -->
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" 
+                             style="width: 40px; height: 40px;">
+                            {% if current_user.profile_picture %}
+                                <img src="{{ current_user.profile_picture }}" alt="{{ current_user.username }}" 
+                                     class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                            {% else %}
+                                <i class="fas fa-user text-white"></i>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-0">{{ post.username }}</h6>
+                            <small class="text-muted">{{ moment(post.timestamp).fromNow() if moment else post.timestamp[:19] }}</small>
+                        </div>
+                        
+                        <!-- Post Actions Dropdown -->
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" 
+                                    data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="editPost('{{ post.id }}')">
+                                    <i class="fas fa-edit me-2"></i>Edit
+                                </a></li>
+                                <li><a class="dropdown-item text-danger" href="#" onclick="deletePost('{{ post.id }}')">
+                                    <i class="fas fa-trash me-2"></i>Delete
+                                </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Post Content -->
+                    <p class="card-text">{{ post.content }}</p>
+                    
+                    <!-- Post Stats -->
+                    <div class="d-flex justify-content-between align-items-center text-muted small mb-3">
+                        <span>
+                            <i class="fas fa-thumbs-up me-1"></i>{{ post.likes|length }} likes
+                        </span>
+                        <span>
+                            <i class="fas fa-comment me-1"></i>{{ post.comments|length }} comments
+                        </span>
+                    </div>
+                    
+                    <!-- Reactions Summary -->
+                    {% if post.reactions %}
+                    <div class="d-flex gap-2 mb-3">
+                        {% for reaction, users in post.reactions.items() %}
+                            {% if users|length > 0 %}
+                            <span class="badge bg-secondary">
+                                {% if reaction == 'like' %}<i class="fas fa-thumbs-up"></i>
+                                {% elif reaction == 'love' %}<i class="fas fa-heart"></i>
+                                {% elif reaction == 'laugh' %}<i class="fas fa-laugh"></i>
+                                {% elif reaction == 'wow' %}<i class="fas fa-surprise"></i>
+                                {% elif reaction == 'sad' %}<i class="fas fa-sad-tear"></i>
+                                {% elif reaction == 'angry' %}<i class="fas fa-angry"></i>
+                                {% endif %}
+                                {{ users|length }}
+                            </span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Comments Section -->
+                    {% if post.comments %}
+                    <div class="comments-section">
+                        <h6 class="mb-3">Comments</h6>
+                        {% for comment in post.comments %}
+                        <div class="comment mb-2 p-2 bg-dark rounded">
+                            <div class="d-flex align-items-start">
+                                <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                     style="width: 24px; height: 24px;">
+                                    <i class="fas fa-user text-white" style="font-size: 0.7rem;"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <small class="fw-bold">{{ comment.username }}</small>
+                                    <p class="mb-1 small">{{ comment.content }}</p>
+                                    <small class="text-muted">{{ comment.timestamp[:19] if comment.timestamp else '' }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-edit fa-3x text-muted mb-3"></i>
+                    <h4>No posts yet!</h4>
+                    <p class="text-muted">Share your first post to get started.</p>
+                    <a href="{{ url_for('main_routes.index') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Create Your First Post
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Add moment.js for better time formatting
+if (typeof moment === 'undefined') {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js';
+    document.head.appendChild(script);
+}
+
+function editPost(postId) {
+    // Simple edit functionality - you can enhance this
+    const newContent = prompt('Edit your post:');
+    if (newContent && newContent.trim()) {
+        // Here you would typically make an API call to update the post
+        alert('Edit functionality would be implemented here');
+    }
+}
+
+function deletePost(postId) {
+    if (confirm('Are you sure you want to delete this post?')) {
+        // Here you would typically make an API call to delete the post
+        alert('Delete functionality would be implemented here');
+    }
+}
+</script>
+{% endblock %}

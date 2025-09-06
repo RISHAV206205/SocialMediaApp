@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}{{ news_data.category }} - SocialFeed{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Category Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i class="fas fa-newspaper me-2"></i>{{ news_data.category }}
+            </h2>
+            
+            <!-- Category Filter Buttons -->
+            <div class="btn-group" role="group">
+                <a href="{{ url_for('main_routes.news', category='general') }}" 
+                   class="btn btn-outline-primary {{ 'active' if category == 'general' else '' }}">
+                    <i class="fas fa-globe me-1"></i>General
+                </a>
+                <a href="{{ url_for('main_routes.news', category='technology') }}" 
+                   class="btn btn-outline-primary {{ 'active' if category == 'technology' else '' }}">
+                    <i class="fas fa-laptop-code me-1"></i>Tech
+                </a>
+                <a href="{{ url_for('main_routes.news', category='sports') }}" 
+                   class="btn btn-outline-primary {{ 'active' if category == 'sports' else '' }}">
+                    <i class="fas fa-football-ball me-1"></i>Sports
+                </a>
+                <a href="{{ url_for('main_routes.news', category='finance') }}" 
+                   class="btn btn-outline-primary {{ 'active' if category == 'finance' else '' }}">
+                    <i class="fas fa-chart-line me-1"></i>Finance
+                </a>
+                <a href="{{ url_for('main_routes.news', category='entertainment') }}" 
+                   class="btn btn-outline-primary {{ 'active' if category == 'entertainment' else '' }}">
+                    <i class="fas fa-film me-1"></i>Entertainment
+                </a>
+            </div>
+        </div>
+        
+        <!-- Market Data (for finance category) -->
+        {% if news_data.market_data %}
+        <div class="card mb-4 bg-success bg-opacity-10 border-success">
+            <div class="card-body">
+                <h5 class="card-title text-success">
+                    <i class="fas fa-chart-line me-2"></i>Market Update - {{ news_data.market_data.symbol }}
+                </h5>
+                <div class="row">
+                    <div class="col-md-3">
+                        <h4 class="text-success">${{ news_data.market_data.price }}</h4>
+                        <small class="text-muted">Current Price</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h5 class="{{ 'text-success' if news_data.market_data.change and '+' in news_data.market_data.change else 'text-danger' }}">
+                            {{ news_data.market_data.change }}
+                        </h5>
+                        <small class="text-muted">Change</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h5 class="{{ 'text-success' if news_data.market_data.change_percent and '+' in news_data.market_data.change_percent else 'text-danger' }}">
+                            {{ news_data.market_data.change_percent }}
+                        </h5>
+                        <small class="text-muted">Change %</small>
+                    </div>
+                    <div class="col-md-3">
+                        <p class="mb-0">{{ news_data.market_data.last_updated }}</p>
+                        <small class="text-muted">Last Updated</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- News Articles -->
+        {% if news_data.articles %}
+        <div class="row">
+            {% for article in news_data.articles %}
+            <div class="col-lg-6 col-xl-4 mb-4">
+                <div class="card h-100">
+                    {% if article.urlToImage %}
+                    <img src="{{ article.urlToImage }}" class="card-img-top" alt="{{ article.title }}" 
+                         style="height: 200px; object-fit: cover;">
+                    {% endif %}
+                    
+                    <div class="card-body d-flex flex-column">
+                        <h6 class="card-title">{{ article.title[:100] }}{{ '...' if article.title|length > 100 else '' }}</h6>
+                        <p class="card-text small text-muted flex-grow-1">
+                            {{ article.description[:150] }}{{ '...' if article.description and article.description|length > 150 else '' }}
+                        </p>
+                        
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    {{ moment(article.publishedAt).fromNow() if moment and article.publishedAt else 'Recently' }}
+                                </small>
+                                <small class="text-muted">{{ article.source }}</small>
+                            </div>
+                            
+                            {% if current_user.is_authenticated %}
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ article.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-external-link-alt me-1"></i>Read More
+                                </a>
+                                
+                                <button class="btn btn-outline-secondary btn-sm share-article-btn" 
+                                        data-title="{{ article.title }}" data-url="{{ article.url }}">
+                                    <i class="fas fa-share me-1"></i>Share as Post
+                                </button>
+                            </div>
+                            {% else %}
+                            <a href="{{ article.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-external-link-alt me-1"></i>Read More
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Load More Button -->
+        <div class="text-center mt-4">
+            <button class="btn btn-outline-primary" onclick="location.reload()">
+                <i class="fas fa-sync-alt me-2"></i>Refresh News
+            </button>
+        </div>
+        
+        {% else %}
+        <!-- No News Available -->
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                <h4>No News Available</h4>
+                <p class="text-muted">
+                    {% if news_data.error %}
+                        {{ news_data.error }}
+                    {% else %}
+                        Unable to load news at this time. Please try again later.
+                    {% endif %}
+                </p>
+                <button class="btn btn-primary" onclick="location.reload()">
+                    <i class="fas fa-retry me-2"></i>Retry
+                </button>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Last Updated Info -->
+        {% if news_data.last_updated %}
+        <div class="text-center mt-4">
+            <small class="text-muted">
+                <i class="fas fa-clock me-1"></i>
+                Last updated: {{ moment(news_data.last_updated).fromNow() if moment else news_data.last_updated[:19] }}
+            </small>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Add moment.js for better time formatting
+if (typeof moment === 'undefined') {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js';
+    document.head.appendChild(script);
+}
+
+// Share article as post functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const shareButtons = document.querySelectorAll('.share-article-btn');
+    
+    shareButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const title = this.getAttribute('data-title');
+            const url = this.getAttribute('data-url');
+            
+            // Create a modal or redirect to main page with pre-filled content
+            const content = `Check out this article: "${title}" - ${url}`;
+            
+            // Store in session storage and redirect
+            sessionStorage.setItem('shareContent', content);
+            window.location.href = '{{ url_for("main_routes.index") }}';
+        });
+    });
+});
+</script>
+{% endblock %}

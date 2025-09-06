@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}SocialFeed - Home{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <!-- Create Post Section (only for authenticated users) -->
+        {% if current_user.is_authenticated %}
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-edit me-2"></i>What's on your mind, {{ current_user.username }}?
+                </h5>
+                <form id="createPostForm">
+                    <div class="mb-3">
+                        <textarea class="form-control" id="postContent" rows="3" 
+                                placeholder="Share something interesting..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane me-2"></i>Post
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Posts Feed -->
+        <div id="postsContainer">
+            {% if posts %}
+                {% for post in posts %}
+                <div class="card mb-4 post-card" data-post-id="{{ post.id }}">
+                    <div class="card-body">
+                        <!-- Post Header -->
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                 style="width: 40px; height: 40px;">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0">{{ post.username }}</h6>
+                                <small class="text-muted">{{ moment(post.timestamp).fromNow() if moment else post.timestamp[:19] }}</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Post Content -->
+                        <p class="card-text">{{ post.content }}</p>
+                        
+                        <!-- Post Stats -->
+                        <div class="d-flex justify-content-between align-items-center text-muted small mb-3">
+                            <span>
+                                <i class="fas fa-thumbs-up me-1"></i>{{ post.likes|length }} likes
+                            </span>
+                            <span>
+                                <i class="fas fa-comment me-1"></i>{{ post.comments|length }} comments
+                            </span>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        {% if current_user.is_authenticated %}
+                        <div class="border-top pt-3">
+                            <!-- Like and Reaction Buttons -->
+                            <div class="d-flex justify-content-between mb-3">
+                                <button class="btn btn-outline-primary btn-sm like-btn" data-post-id="{{ post.id }}">
+                                    <i class="fas fa-thumbs-up me-1"></i>
+                                    {{ 'Unlike' if current_user.id in post.likes else 'Like' }}
+                                </button>
+                                
+                                <!-- Reaction Buttons -->
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-outline-danger btn-sm reaction-btn" 
+                                            data-post-id="{{ post.id }}" data-reaction="love">
+                                        <i class="fas fa-heart"></i>
+                                    </button>
+                                    <button class="btn btn-outline-warning btn-sm reaction-btn" 
+                                            data-post-id="{{ post.id }}" data-reaction="laugh">
+                                        <i class="fas fa-laugh"></i>
+                                    </button>
+                                    <button class="btn btn-outline-info btn-sm reaction-btn" 
+                                            data-post-id="{{ post.id }}" data-reaction="wow">
+                                        <i class="fas fa-surprise"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm reaction-btn" 
+                                            data-post-id="{{ post.id }}" data-reaction="sad">
+                                        <i class="fas fa-sad-tear"></i>
+                                    </button>
+                                    <button class="btn btn-outline-dark btn-sm reaction-btn" 
+                                            data-post-id="{{ post.id }}" data-reaction="angry">
+                                        <i class="fas fa-angry"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Comment Form -->
+                            <form class="comment-form" data-post-id="{{ post.id }}">
+                                <div class="input-group">
+                                    <input type="text" class="form-control comment-input" 
+                                           placeholder="Write a comment...">
+                                    <button class="btn btn-outline-secondary" type="submit">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Comments Section -->
+                        {% if post.comments %}
+                        <div class="comments-section mt-3">
+                            <h6 class="mb-3">Comments</h6>
+                            {% for comment in post.comments %}
+                            <div class="comment mb-2 p-2 bg-dark rounded">
+                                <div class="d-flex align-items-start">
+                                    <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                         style="width: 24px; height: 24px;">
+                                        <i class="fas fa-user text-white" style="font-size: 0.7rem;"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <small class="fw-bold">{{ comment.username }}</small>
+                                        <p class="mb-1 small">{{ comment.content }}</p>
+                                        <small class="text-muted">{{ comment.timestamp[:19] if comment.timestamp else '' }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-stream fa-3x text-muted mb-3"></i>
+                        <h4>No posts yet!</h4>
+                        <p class="text-muted">
+                            {% if current_user.is_authenticated %}
+                                Be the first to share something interesting.
+                            {% else %}
+                                <a href="{{ url_for('auth.login') }}" class="text-decoration-none">
+                                    Login
+                                </a> or <a href="{{ url_for('auth.register') }}" class="text-decoration-none">
+                                    Register
+                                </a> to start sharing and connecting.
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Add moment.js for better time formatting
+if (typeof moment === 'undefined') {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js';
+    document.head.appendChild(script);
+}
+</script>
+{% endblock %}

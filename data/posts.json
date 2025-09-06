@@ -1,0 +1,32 @@
+[
+  {
+    "id": "38fd7fec-cec0-4c5a-bf7a-9faed09ab734",
+    "user_id": 1,
+    "username": "acharyc1!",
+    "content": "Hey, This is Rishav! I had a great summer.",
+    "timestamp": "2025-09-06T17:13:52.984068",
+    "likes": [
+      1
+    ],
+    "comments": [
+      {
+        "id": "651f4e79-1870-453b-834d-c9fdce3054e8",
+        "post_id": "38fd7fec-cec0-4c5a-bf7a-9faed09ab734",
+        "user_id": 1,
+        "username": "acharyc1!",
+        "content": "Its great to meet you Rishav. Looking forward to staying in touch!",
+        "timestamp": "2025-09-06T17:14:51.534288"
+      }
+    ],
+    "reactions": {
+      "like": [],
+      "love": [
+        1
+      ],
+      "laugh": [],
+      "wow": [],
+      "angry": [],
+      "sad": []
+    }
+  }
+]
