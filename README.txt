@@ -8,7 +8,7 @@ Email: rishav.c.acharya@vanderbilt.edu
 
 PROJECT OVERVIEW:
 This is a social media web application built for the Change++ coding challenge. 
-The app allows users to login with Google, create posts, like/comment on posts, 
+The app allows users to login with usernamne & password, create posts, like/comment on posts, 
 react with emojis, and browse news from multiple categories including general news, 
 technology, sports, finance, and entertainment.
 
@@ -39,23 +39,6 @@ Frontend:
 APIs Used:
 - NewsAPI (general, tech, sports, entertainment news)
 - Alpha Vantage API (financial data)
-
-SETUP INSTRUCTIONS:
-1. Environment Variables Required:
-   - NEWS_API_KEY: Your NewsAPI key (get from newsapi.org)
-   - ALPHA_VANTAGE_API_KEY: Your Alpha Vantage key (get from alphavantage.co)
-   - SESSION_SECRET: A random secret key for sessions
-
-
-2. Running the Application:
-   - Run: python main.py
-   - The app will start on http://0.0.0.0:5000
-   - Access it through your web browser
-
-3. Data Storage:
-   - User data is stored in data/users.json
-   - Posts and comments are stored in data/posts.json
-   - Data files are created automatically when first needed
 
 USAGE:
 1. Visit the application URL
