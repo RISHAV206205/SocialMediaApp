@@ -1,6 +1,8 @@
 SocialFeed - Social Media Web Application
 =========================================
 
+Application Link: https://socialmediaapp-gwwh.onrender.com/news?category=technology
+
 STUDENT INFORMATION:
 Name: Rishav Chandra Acharya
 Email: rishav.c.acharya@vanderbilt.edu
