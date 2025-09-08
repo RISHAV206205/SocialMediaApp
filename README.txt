@@ -1,9 +1,7 @@
 SocialFeed - Social Media Web Application
-=========================================
 
 Application Link: https://socialmediaapp-gwwh.onrender.com/news?category=technology
 
-STUDENT INFORMATION:
 Name: Rishav Chandra Acharya
 Email: rishav.c.acharya@vanderbilt.edu
 
@@ -77,16 +75,8 @@ BONUS FEATURES IMPLEMENTED:
 - Share news articles as posts feature
 
 DEPLOYMENT:
-The application is designed to run on Vercel or any Flask-compatible hosting 
-platform. All dependencies are included and the app binds to 0.0.0.0:5000 
-as required for external access.
-
-SECURITY CONSIDERATIONS:
-- Session management with secure secret keys
-- Input validation on all user inputs
-- Error handling to prevent information disclosure
-- No SQL injection risks (using JSON file storage)
-- XSS prevention through Jinja2 template escaping
+The application is designed to run on Render or any Flask-compatible hosting 
+platform. 
 
 This application demonstrates a complete social media platform with modern 
 features while maintaining simplicity and ease of use.
